@@ -1,0 +1,67 @@
+openapi: 3.0.3
+
+info:
+  title: Oficina del Agua - Sync Service API
+  version: 1.0.0
+  description: >
+    API correspondiente a la Feature 04 de la Fase 2 del proyecto
+    Oficina del Agua. Permite iniciar procesos de replicación asíncrona
+    y consultar el estado de los jobs generados.
+
+paths:
+
+  /api/sync/resumen:
+    post:
+      summary: Iniciar sincronización
+      description: >
+        Inicia un proceso de replicación asíncrona hacia la base de datos NoSQL.
+      responses:
+        '202':
+          description: Sincronización aceptada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncJobResponse'
+
+  /api/sync/jobs/{jobId}:
+    get:
+      summary: Consultar estado de un job
+      description: >
+        Obtiene el estado actual de un proceso de sincronización.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Identificador del job de sincronización
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Estado del job
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncJobResponse'
+
+components:
+
+  schemas:
+
+    SyncJobResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+        estado:
+          type: string
+          enum:
+            - PENDIENTE
+            - EN_PROGRESO
+            - COMPLETADO
+            - FALLIDO
+          example: PENDIENTE
+      required:
+        - jobId
+        - estado
