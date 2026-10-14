@@ -12,6 +12,7 @@ paths:
 
   /api/sync/resumen:
     post:
+      operationId: iniciarSincronizacion
       summary: Iniciar sincronización
       description: >
         Inicia un proceso de replicación asíncrona hacia la base de datos NoSQL.
@@ -25,6 +26,7 @@ paths:
 
   /api/sync/jobs/{jobId}:
     get:
+      operationId: consultarEstadoJob
       summary: Consultar estado de un job
       description: >
         Obtiene el estado actual de un proceso de sincronización.
