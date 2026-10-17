@@ -1,38 +1,40 @@
+
 package com.oficinaagua.syncservice.controller;
 
 import com.oficinaagua.syncservice.api.ApiApi;
 import com.oficinaagua.syncservice.model.SyncJobResponse;
+import com.oficinaagua.syncservice.service.SyncJobService;
+import com.oficinaagua.syncservice.service.AsyncSyncProcessor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 @RestController
 public class SyncController implements ApiApi {
 
-    private final Map<String, SyncJobResponse> jobs =
-            new ConcurrentHashMap<>();
+    private final SyncJobService syncJobService;
+    private final AsyncSyncProcessor asyncSyncProcessor;
+
+    // Inyectar los servicios necesarios
+    public SyncController(
+            SyncJobService syncJobService,
+            AsyncSyncProcessor asyncSyncProcessor) {
+
+        this.syncJobService = syncJobService;
+        this.asyncSyncProcessor = asyncSyncProcessor;
+    }
 
     @Override
     public ResponseEntity<SyncJobResponse> iniciarSincronizacion() {
 
-        // Generar un identificador único para el trabajo
-        String jobId = UUID.randomUUID().toString();
+        // 1. Crear un nuevo job con estado PENDIENTE
+        SyncJobResponse job = syncJobService.crearJob();
 
-        // Crear el trabajo con estado inicial PENDIENTE
-        SyncJobResponse job = new SyncJobResponse();
+        // 2. Iniciar el procesamiento en segundo plano
+        asyncSyncProcessor.procesar(job.getJobId());
 
-        job.setJobId(jobId);
-        job.setEstado(SyncJobResponse.EstadoEnum.PENDIENTE);
-
-        // Guardar temporalmente el trabajo en memoria
-        jobs.put(jobId, job);
-
-        // Responder HTTP 202 Accepted
+        // 3. Responder inmediatamente con HTTP 202
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(job);
@@ -42,15 +44,15 @@ public class SyncController implements ApiApi {
     public ResponseEntity<SyncJobResponse> consultarEstadoJob(
             String jobId) {
 
-        // Buscar el trabajo por su identificador
-        SyncJobResponse job = jobs.get(jobId);
+        // Consultar el estado actual del job
+        SyncJobResponse job = syncJobService.consultarJob(jobId);
 
-        // Si no existe, responder HTTP 404
+        // Si no existe, devolver HTTP 404
         if (job == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // Devolver el estado actual del trabajo
+        // Devolver el estado del job
         return ResponseEntity.ok(job);
     }
 }
