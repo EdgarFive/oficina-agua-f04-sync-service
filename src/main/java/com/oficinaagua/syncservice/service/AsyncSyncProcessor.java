@@ -1,3 +1,4 @@
+
 package com.oficinaagua.syncservice.service;
 
 import com.oficinaagua.syncservice.model.SyncJobResponse;
@@ -8,9 +9,14 @@ import org.springframework.stereotype.Service;
 public class AsyncSyncProcessor {
 
     private final SyncJobService syncJobService;
+    private final ContadorReplicationService contadorReplicationService;
 
-    public AsyncSyncProcessor(SyncJobService syncJobService) {
+    public AsyncSyncProcessor(
+            SyncJobService syncJobService,
+            ContadorReplicationService contadorReplicationService) {
+
         this.syncJobService = syncJobService;
+        this.contadorReplicationService = contadorReplicationService;
     }
 
     @Async("syncExecutor")
@@ -24,28 +30,24 @@ public class AsyncSyncProcessor {
 
         try {
 
-            // SIMULACIÓN TEMPORAL:
-            // Representa una operación que tarda 5 segundos.
-            // Todavía NO sincroniza MySQL con DynamoDB.
-            Thread.sleep(5000);
+            // Ejecutar la replicación REAL de contadores
+            contadorReplicationService.sincronizarContadores();
 
-            // Finalización de la simulación
+            // Marcar como completado solo si terminó sin errores
             syncJobService.actualizarEstado(
                     jobId,
                     SyncJobResponse.EstadoEnum.COMPLETADO
             );
 
-        } catch (InterruptedException e) {
-
-            Thread.currentThread().interrupt();
-
-            syncJobService.actualizarEstado(
-                    jobId,
-                    SyncJobResponse.EstadoEnum.FALLIDO
-            );
-
         } catch (Exception e) {
 
+            System.err.println(
+                "ERROR EN SINCRONIZACION - Job: " + jobId
+            );
+
+            e.printStackTrace();
+
+            // Registrar que el trabajo falló
             syncJobService.actualizarEstado(
                     jobId,
                     SyncJobResponse.EstadoEnum.FALLIDO

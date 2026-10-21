@@ -62,6 +62,14 @@
 			<artifactId>mariadb-java-client</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+
+		<!-- SDK de AWS para trabajar con DynamoDB -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>dynamodb</artifactId>
+			<version>2.32.20</version>
+		</dependency>
+
 		
 	</dependencies>
 
