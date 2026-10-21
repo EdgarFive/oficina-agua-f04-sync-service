@@ -57,12 +57,20 @@ public class DynamoDbLocalConfig {
                 ScalarAttributeType.S
             );
 
+            crearTablaSiNoExiste(
+                dynamoDbClient,
+                "oficina_agua_lecturas",
+                "lectura_id",
+                ScalarAttributeType.N
+            );
+
             System.out.println(
                 "DYNAMODB LOCAL OK - Tablas disponibles: "
                 + dynamoDbClient.listTables().tableNames()
             );
         };
     }
+
 
     private void crearTablaSiNoExiste(
             DynamoDbClient dynamoDbClient,

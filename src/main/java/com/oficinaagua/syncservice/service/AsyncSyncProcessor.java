@@ -10,33 +10,40 @@ public class AsyncSyncProcessor {
 
     private final SyncJobService syncJobService;
     private final ContadorReplicationService contadorReplicationService;
+    private final LecturaReplicationService lecturaReplicationService;
 
     public AsyncSyncProcessor(
             SyncJobService syncJobService,
-            ContadorReplicationService contadorReplicationService) {
+            ContadorReplicationService contadorReplicationService,
+            LecturaReplicationService lecturaReplicationService) {
 
         this.syncJobService = syncJobService;
         this.contadorReplicationService = contadorReplicationService;
+        this.lecturaReplicationService = lecturaReplicationService;
     }
 
     @Async("syncExecutor")
     public void procesar(String jobId) {
 
-        // Indicar que el trabajo comenzó
-        syncJobService.actualizarEstado(
-                jobId,
-                SyncJobResponse.EstadoEnum.EN_PROGRESO
-        );
-
         try {
 
-            // Ejecutar la replicación REAL de contadores
+            // Marcar el trabajo como iniciado
+            syncJobService.actualizarEstado(
+                jobId,
+                SyncJobResponse.EstadoEnum.EN_PROGRESO
+            );
+
+            // 1. Sincronizar contadores
             contadorReplicationService.sincronizarContadores();
 
-            // Marcar como completado solo si terminó sin errores
+            // 2. Sincronizar lecturas
+            lecturaReplicationService.sincronizarLecturas();
+
+            // Marcar como completado cuando ambas
+            // sincronizaciones terminen correctamente
             syncJobService.actualizarEstado(
-                    jobId,
-                    SyncJobResponse.EstadoEnum.COMPLETADO
+                jobId,
+                SyncJobResponse.EstadoEnum.COMPLETADO
             );
 
         } catch (Exception e) {
@@ -47,10 +54,9 @@ public class AsyncSyncProcessor {
 
             e.printStackTrace();
 
-            // Registrar que el trabajo falló
             syncJobService.actualizarEstado(
-                    jobId,
-                    SyncJobResponse.EstadoEnum.FALLIDO
+                jobId,
+                SyncJobResponse.EstadoEnum.FALLIDO
             );
         }
     }
