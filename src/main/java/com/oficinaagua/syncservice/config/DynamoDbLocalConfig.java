@@ -23,15 +23,11 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 @Profile("local")
 public class DynamoDbLocalConfig {
 
-    private static final String TABLA = "oficina_agua_contadores";
-
     @Bean
     public DynamoDbClient dynamoDbClient() {
 
         return DynamoDbClient.builder()
-                .endpointOverride(
-                    URI.create("http://localhost:8000")
-                )
+                .endpointOverride(URI.create("http://localhost:8000"))
                 .region(Region.US_EAST_1)
                 .credentialsProvider(
                     StaticCredentialsProvider.create(
@@ -47,45 +43,66 @@ public class DynamoDbLocalConfig {
 
         return args -> {
 
-            var tablas = dynamoDbClient.listTables().tableNames();
+            crearTablaSiNoExiste(
+                dynamoDbClient,
+                "oficina_agua_contadores",
+                "contador_id",
+                ScalarAttributeType.N
+            );
 
-            if (!tablas.contains(TABLA)) {
-
-                CreateTableRequest solicitud =
-                        CreateTableRequest.builder()
-                        .tableName(TABLA)
-                        .attributeDefinitions(
-                            AttributeDefinition.builder()
-                                .attributeName("contador_id")
-                                .attributeType(ScalarAttributeType.N)
-                                .build()
-                        )
-                        .keySchema(
-                            KeySchemaElement.builder()
-                                .attributeName("contador_id")
-                                .keyType(KeyType.HASH)
-                                .build()
-                        )
-                        .billingMode(BillingMode.PAY_PER_REQUEST)
-                        .build();
-
-                dynamoDbClient.createTable(solicitud);
-
-                System.out.println(
-                    "DYNAMODB - Tabla creada: " + TABLA
-                );
-
-            } else {
-
-                System.out.println(
-                    "DYNAMODB - La tabla ya existe: " + TABLA
-                );
-            }
+            crearTablaSiNoExiste(
+                dynamoDbClient,
+                "oficina_agua_sync_jobs",
+                "jobId",
+                ScalarAttributeType.S
+            );
 
             System.out.println(
                 "DYNAMODB LOCAL OK - Tablas disponibles: "
                 + dynamoDbClient.listTables().tableNames()
             );
         };
+    }
+
+    private void crearTablaSiNoExiste(
+            DynamoDbClient dynamoDbClient,
+            String nombreTabla,
+            String clavePrimaria,
+            ScalarAttributeType tipoClave) {
+
+        var tablas = dynamoDbClient.listTables().tableNames();
+
+        if (tablas.contains(nombreTabla)) {
+
+            System.out.println(
+                "DYNAMODB - La tabla ya existe: " + nombreTabla
+            );
+
+            return;
+        }
+
+        CreateTableRequest solicitud =
+                CreateTableRequest.builder()
+                    .tableName(nombreTabla)
+                    .attributeDefinitions(
+                        AttributeDefinition.builder()
+                            .attributeName(clavePrimaria)
+                            .attributeType(tipoClave)
+                            .build()
+                    )
+                    .keySchema(
+                        KeySchemaElement.builder()
+                            .attributeName(clavePrimaria)
+                            .keyType(KeyType.HASH)
+                            .build()
+                    )
+                    .billingMode(BillingMode.PAY_PER_REQUEST)
+                    .build();
+
+        dynamoDbClient.createTable(solicitud);
+
+        System.out.println(
+            "DYNAMODB - Tabla creada: " + nombreTabla
+        );
     }
 }
