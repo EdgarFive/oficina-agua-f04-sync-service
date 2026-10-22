@@ -7,6 +7,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.beans.factory.annotation.Value;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -24,10 +25,10 @@ import software.amazon.awssdk.services.dynamodb.model.ScalarAttributeType;
 public class DynamoDbLocalConfig {
 
     @Bean
-    public DynamoDbClient dynamoDbClient() {
+    public DynamoDbClient dynamoDbClient(@Value("${F04_DYNAMODB_ENDPOINT:http://localhost:8000}") String endpoint) {
 
         return DynamoDbClient.builder()
-                .endpointOverride(URI.create("http://localhost:8000"))
+                .endpointOverride(URI.create(endpoint))
                 .region(Region.US_EAST_1)
                 .credentialsProvider(
                     StaticCredentialsProvider.create(

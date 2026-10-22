@@ -1,7 +1,8 @@
+
 spring:
   datasource:
-    url: jdbc:mariadb://127.0.0.1:3308/oficina_agua
-    username: f04_local_ro
+    url: ${F04_DB_URL:jdbc:mariadb://127.0.0.1:3308/oficina_agua}
+    username: ${F04_DB_USER:f04_local_ro}
     password: ${F04_DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
