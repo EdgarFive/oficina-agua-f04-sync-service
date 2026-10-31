@@ -57,7 +57,7 @@ public class DynamoDbLocalConfig {
                 "jobId",
                 ScalarAttributeType.S
             );
-
+                    
             crearTablaSiNoExiste(
                 dynamoDbClient,
                 "oficina_agua_lecturas",

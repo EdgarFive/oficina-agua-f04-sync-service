@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Oficina del Agua | Feature 04 - Swagger UI</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #fafafa; }
+    .topbar { display: none; }
+    .banner { padding: 12px 20px; background: #0f172a; color: #fff; font: 14px system-ui, sans-serif; }
+    .banner small { color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="banner">Oficina del Agua — Feature 04 <small> | Pruebas de endpoints con Swagger UI</small></div>
+  <div id="swagger-ui"></div>
+  <noscript>Activa JavaScript para visualizar Swagger UI.</noscript>
+
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script>
+    // Contrato OpenAPI de F04 incorporado para que solo haga falta este archivo.
+    // Las solicitudes se envian al mismo servidor que entrega swagger.html.
+    const specification = {
+      openapi: "3.0.3",
+      info: {
+        title: "Oficina del Agua - Sync Service API",
+        version: "1.0.0",
+        description: "Feature 04: iniciar procesos de replicación asíncrona de MariaDB a DynamoDB y consultar su estado."
+      },
+      servers: [{ url: window.location.origin, description: "Microservicio local" }],
+      tags: [{ name: "Sincronización", description: "Operaciones de replicación asíncrona" }],
+      paths: {
+        "/api/sync/resumen": {
+          post: {
+            tags: ["Sincronización"],
+            operationId: "iniciarSincronizacion",
+            summary: "Iniciar sincronización",
+            description: "Crea un job y solicita la replicación en segundo plano.",
+            responses: {
+              "202": {
+                description: "Sincronización aceptada",
+                content: { "application/json": { schema: { "$ref": "#/components/schemas/SyncJobResponse" } } }
+              }
+            }
+          }
+        },
+        "/api/sync/jobs/{jobId}": {
+          get: {
+            tags: ["Sincronización"],
+            operationId: "consultarEstadoJob",
+            summary: "Consultar estado de un job",
+            parameters: [{
+              name: "jobId", in: "path", required: true,
+              description: "Identificador del job obtenido al iniciar la sincronización",
+              schema: { type: "string" }
+            }],
+            responses: {
+              "200": {
+                description: "Estado actual del trabajo",
+                content: { "application/json": { schema: { "$ref": "#/components/schemas/SyncJobResponse" } } }
+              },
+              "404": { description: "No se encontró un job con ese identificador" }
+            }
+          }
+        }
+      },
+      components: {
+        schemas: {
+          SyncJobResponse: {
+            type: "object",
+            required: ["jobId", "estado"],
+            properties: {
+              jobId: { type: "string", example: "550e8400-e29b-41d4-a716-446655440000" },
+              estado: {
+                type: "string",
+                enum: ["PENDIENTE", "EN_PROGRESO", "COMPLETADO", "FALLIDO"],
+                example: "PENDIENTE"
+              }
+            }
+          }
+        }
+      }
+    };
+
+    window.ui = SwaggerUIBundle({
+      spec: specification,
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      docExpansion: "list",
+      defaultModelsExpandDepth: 1,
+      displayRequestDuration: true,
+      supportedSubmitMethods: ["get", "post"]
+    });
+  </script>
+</body>
+</html>

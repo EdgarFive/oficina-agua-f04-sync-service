@@ -1,4 +1,4 @@
-# ETAPA 1: Compilar el microservicio
+    # ETAPA 1: Compilar el microservicio
 FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /workspace
