@@ -90,6 +90,28 @@ public class LecturaReplicationService {
 
                 sinCambios++;
             }
+
+            int procesados = insertados + actualizados + sinCambios;
+
+            System.out.printf(
+                "[LECTURAS] %d/%d | ID=%s | Insertadas=%d | Actualizadas=%d | Sin cambios=%d%n",
+                procesados,
+                lecturas.size(),
+                lectura.get("lectura_id").n(),
+                insertados,
+                actualizados,
+                sinCambios
+            );
+
+            try {
+                Thread.sleep(Long.parseLong(
+                    System.getenv().getOrDefault("F04_DEMO_DELAY_MS", "0")
+                ));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Sincronizacion interrumpida", e);
+            }
+
         }
 
         System.out.println("SINCRONIZACION DE LECTURAS");

@@ -20,6 +20,7 @@ services:
       F04_DB_URL: jdbc:mariadb://host.docker.internal:3308/oficina_agua
       F04_DB_USER: f04_local_ro
       F04_DB_PASSWORD: ${F04_LOCAL_DB_PASSWORD}
+      F04_DEMO_DELAY_MS: "500"
 
       # DynamoDB ejecutado dentro de Docker
       F04_DYNAMODB_ENDPOINT: http://dynamodb:8000

@@ -24,7 +24,7 @@ La Fase 2 contempla cuatro funcionalidades:
 
 ### 1.1. Vista general y alcance real
 
-![Arquitectura general de Fase 2 y alcance confirmado](docs/diagramas/arquitectura-general.svg)
+![Arquitectura general de Fase 2 y alcance confirmado](docs/diagramas/arquitectura-general.jpeg)
 
 El monolito utiliza MariaDB como base de datos transaccional. La Feature 04 consulta esa base con una cuenta SQL de solo lectura y escribe una réplica parcial en DynamoDB Local. El diagrama sitúa las cuatro features dentro del alcance académico de la Fase 2; no representa comunicaciones implementadas entre F04 y las otras tres features.
 
@@ -40,7 +40,7 @@ El monolito utiliza MariaDB como base de datos transaccional. La Feature 04 cons
 
 #### Feature 03 — Envío de pagos por colas
 
-Esta funcionalidad forma parte de la arquitectura general de Fase 2. Su ejecución es independiente y su implementación no está contenida en este repositorio.
+![Diagrama de la Feature 03 - Envío de pagos por colas](docs/diagramas/feature-03.png)
 
 #### Feature 04 — Replicación asíncrona a NoSQL
 

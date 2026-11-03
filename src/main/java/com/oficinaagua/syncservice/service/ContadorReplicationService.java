@@ -79,6 +79,28 @@ public class ContadorReplicationService {
 
                 sinCambios++;
             }
+            
+            int procesados = insertados + actualizados + sinCambios;
+
+            System.out.printf(
+                "[CONTADORES] %d/%d | ID=%s | Insertados=%d | Actualizados=%d | Sin cambios=%d%n",
+                procesados,
+                contadores.size(),
+                contador.get("contador_id").n(),
+                insertados,
+                actualizados,
+                sinCambios
+            );
+
+            try {
+                Thread.sleep(Long.parseLong(
+                    System.getenv().getOrDefault("F04_DEMO_DELAY_MS", "0")
+                ));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Sincronizacion interrumpida", e);
+            }
+
         }
 
         System.out.println("SINCRONIZACION DE CONTADORES");

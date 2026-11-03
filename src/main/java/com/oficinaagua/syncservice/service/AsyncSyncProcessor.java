@@ -33,11 +33,14 @@ public class AsyncSyncProcessor {
                 SyncJobResponse.EstadoEnum.EN_PROGRESO
             );
 
+
             // 1. Sincronizar contadores
             contadorReplicationService.sincronizarContadores();
 
             // 2. Sincronizar lecturas
             lecturaReplicationService.sincronizarLecturas();
+
+
 
             // Marcar como completado cuando ambas
             // sincronizaciones terminen correctamente
